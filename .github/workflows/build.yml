@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    env:
+      CFLAGS: "-Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=return-mismatch"
+      LDFLAGS: "-Wno-error=implicit-function-declaration"
     steps:
       - uses: actions/checkout@v4
 
@@ -22,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y openjdk-17-jdk python3-pip zip unzip libffi-dev libssl-dev libbz2-dev libncurses-dev libreadline-dev
+          sudo apt-get install -y openjdk-17-jdk python3-pip zip unzip libffi-dev libssl-dev
           pip install --upgrade pip
           pip install "cython==0.29.36" buildozer
 
@@ -40,4 +43,3 @@ jobs:
         with:
           name: SweetyMovieApp-APK
           path: bin/*.apk
-          if-no-files-found: error

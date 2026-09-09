@@ -1,31 +1,60 @@
 [app]
+
+# App Name
 title = SweetyMovieApp
+
+# Package name
 package.name = sweetyapp
+
+# Domain
 package.domain = com.sweety.movieapp
 
+# Source dir
 source.dir =.
-source.include_exts = py,png,jpg,kv,atlas,json,ttf
 
+# Include files
+source.include_exts = py,png,jpg,kv,atlas,json,ttf
+source.include_patterns = assets/*,images/*
+
+# Version - SINGLE version only
 version = 1.0
-requirements = python3,kivy
+
+# Requirements - Python 3.11.9 FIX
+requirements = python3==3.11.9,kivy,requests,urllib3,charset-normalizer,idna,certifi
+
+# Orientation
 orientation = portrait
 fullscreen = 0
 
-[app:android]
-p4a.branch = v2024.01.21
-p4a.bootstrap = sdl2
-p4a.port = 8000
-
-android.api = 33
-android.minapi = 21
-android.ndk = 25b
-android.sdk = 33
-android.ndk_api = 21
-android.accept_sdk_license_agreements = True
-
-android.permissions = INTERNET
-android.archs = arm64-v8a, armeabi-v7a
+# Icon if you have
+#icon.filename = %(source.dir)s/icon.png
 
 [buildozer]
+
+# Log level
 log_level = 2
-warn_on_root = 1
+
+[app:android]
+
+# Fix for Python 3.14 error - OLD STABLE BRANCH
+p4a.fork = kivy
+p4a.branch = v2023.12.24
+p4a.bootstrap = sdl2
+
+# Android settings
+android.permissions = INTERNET
+android.api = 33
+android.minapi = 24
+android.ndk = 25b
+android.accept_sdk_license_agreements = True
+android.ant = auto
+android.archs = arm64-v8a, armeabi-v7a
+
+# Allow backup
+android.allow_backup = True
+
+# Build type
+p4a.build_env = CFLAGS=-Wno-error=implicit-function-declaration LDFLAGS=-Wno-error=implicit-function-declaration
+
+[app:ios]
+# Not needed

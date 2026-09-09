@@ -18,5 +18,6 @@ android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.sdk = 33
-android.accept_sdk_license_agreement = True
+android.accept_sdk_license_agreements = True
+android.ant = auto
 p4a.bootstrap = sdl2

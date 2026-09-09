@@ -7,8 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     env:
-      CFLAGS: "-Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=return-mismatch"
-      LDFLAGS: "-Wno-error=implicit-function-declaration"
+      CFLAGS: "-Wno-error=implicit-function-declaration -Wno-error=implicit-int"
     steps:
       - uses: actions/checkout@v4
 

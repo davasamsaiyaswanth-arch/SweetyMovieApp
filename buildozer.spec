@@ -54,7 +54,6 @@ android.archs = arm64-v8a, armeabi-v7a
 android.allow_backup = True
 
 # Build type
-p4a.build_env = CFLAGS=-Wno-error=implicit-function-declaration LDFLAGS=-Wno-error=implicit-function-declaration
 
 [app:ios]
 # Not needed

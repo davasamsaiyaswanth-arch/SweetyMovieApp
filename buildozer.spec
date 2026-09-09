@@ -20,7 +20,7 @@ source.include_patterns = assets/*,images/*
 version = 1.0
 
 # Requirements - Python 3.11.9 FIX
-requirements = python3==3.11.9,kivy,requests,urllib3,charset-normalizer,idna,certifi
+requirements = hostpython3==3.11.9,python3==3.11.9,kivy,requests,urllib3,charset-normalizer,idna,certifi
 
 # Orientation
 orientation = portrait

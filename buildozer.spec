@@ -5,7 +5,7 @@ package.domain = com.sweety.movie
 source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,json
 version = 1.0
-requirements = python3,kivy==2.3.0,cython==3.0.0,pillow,certifi,urllib3,charset-normalizer,idna,requests
+requirements = python3,kivy==2.3.0,cython==0.29.37,pillow==10.0.0,certifi,urllib3,charset-normalizer,idna,requests
 orientation = portrait
 
 [app:android]

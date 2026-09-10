@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip==24.0 setuptools wheel
           pip install buildozer cython==0.29.36
-      - name: Pre-install Android SDK 33 and fix sdkmanager
+      - name: Pre-install Android SDK
         run: |
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
@@ -51,9 +51,9 @@ jobs:
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" || true
       - name: Build APK
         run: |
-          buildozer android clean || true
-          rm -rf .buildozer/android/platform/build-*/build/other_builds/python3 || true
-          rm -rf .buildozer/android/platform/build-*/build/other_builds/openssl || true
+          rm -rf $HOME/.buildozer/android/platform/android-ndk-r28c || true
+          rm -rf $HOME/.buildozer/android/platform/android-ndk-* || true
+          rm -rf .buildozer || true
           buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4

@@ -25,6 +25,3 @@ android.build_tools_version = 37.0.0
 android.accept_sdk_license_agreements = True
 android.archs = arm64-v8a, armeabi-v7a
 android.allow_backup = True
-
-# (Add permissions if needed)
-# android.permissions = INTERNET,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE

@@ -51,9 +51,8 @@ jobs:
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" || true
       - name: Build APK
         run: |
-          rm -rf $HOME/.buildozer/android/platform/android-ndk-r28c || true
-          rm -rf $HOME/.buildozer/android/platform/android-ndk-* || true
           rm -rf .buildozer || true
+          rm -rf $HOME/.buildozer || true
           buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4

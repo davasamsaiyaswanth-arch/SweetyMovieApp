@@ -11,23 +11,28 @@ jobs:
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev libltdl-dev wget
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip==24.0 setuptools wheel
           pip install buildozer cython==0.29.36
+
       - name: Pre-install Android SDK
         run: |
           export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
@@ -46,14 +51,28 @@ jobs:
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $HOME/.android/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1059b8ea6b2ac" >> $HOME/.android/licenses/android-sdk-license
-          cp $HOME/.android/licenses/android-sdk-license $ANDROID_SDK_ROOT/licenses/
+          echo "y" > $HOME/.android/licenses/android-sdk-preview-license
+          cp $HOME/.android/licenses/* $ANDROID_SDK_ROOT/licenses/ || true
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" || true
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0" || true
+
       - name: Build APK
         run: |
+          echo "Cleaning old builds..."
           rm -rf .buildozer || true
-          rm -rf $HOME/.buildozer || true
+          rm -rf $HOME/.buildozer/android/platform/build-* || true
+          rm -rf $HOME/.buildozer/android/platform/android-ndk-* || true
+          mkdir -p $HOME/.android/licenses
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/.android/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $HOME/.android/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c1059b8ea6b2ac" >> $HOME/.android/licenses/android-sdk-license
+          echo "y" > $HOME/.android/licenses/android-sdk-preview-license
+          cp $HOME/.android/licenses/* $HOME/.buildozer/android/platform/android-sdk/licenses/ || true
+          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk --licenses || true
+          $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk "build-tools;37.0.0" "build-tools;33.0.2" "platform-tools" "platforms;android-33" || true
           buildozer android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

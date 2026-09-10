@@ -7,7 +7,7 @@ source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,json,ttf
 source.include_patterns = assets/*,images/*
 version = 0.1
-requirements = python3,kivy==2.3.1,cython==3.1.0,pillow==10.0.0,certifi,urllib3,charset-normalizer,idna,requests
+requirements = python3,kivy==2.3.1,pillow==10.0.0,certifi,urllib3,charset-normalizer,idna,requests
 orientation = portrait
 fullscreen = 0
 

@@ -24,8 +24,6 @@ android.minapi = 24
 android.ndk = 25b
 
 android.accept_sdk_license = True
-
-# Use the SDK components installed by the workflow.
 android.skip_update = True
 
 p4a.bootstrap = sdl2

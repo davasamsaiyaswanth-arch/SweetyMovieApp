@@ -19,7 +19,18 @@ android.permissions = INTERNET
 
 android.archs = arm64-v8a
 
+android.api = 35
+android.minapi = 24
+android.ndk = 25b
+
+android.accept_sdk_license = True
+
+# Use the SDK components installed by the workflow.
+android.skip_update = True
+
 p4a.bootstrap = sdl2
+p4a.fork = kivy
+p4a.branch = master
 
 
 [buildozer]

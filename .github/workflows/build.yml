@@ -37,7 +37,7 @@ jobs:
 
       - name: Clean old Buildozer files
         run: |
-          rm -rf .buildozer
+          rm -rf.buildozer
           rm -rf bin
           mkdir -p "$HOME/.buildozer/android/platform/android-sdk"
 
@@ -45,8 +45,8 @@ jobs:
         run: |
           SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
           mkdir -p "$SDK_ROOT/cmdline-tools"
-          
-          if [ ! -f "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+
+          if [! -f "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
             wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-cmdline-tools.zip
             unzip -q /tmp/android-cmdline-tools.zip -d "$SDK_ROOT/cmdline-tools"
             mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
@@ -63,6 +63,11 @@ jobs:
           echo "$SDK_ROOT/platform-tools" >> $GITHUB_PATH
           echo "$SDK_ROOT/build-tools/33.0.2" >> $GITHUB_PATH
 
+          # OLD PATH FIX - BUILD APK ERROR KI FIX
+          mkdir -p "$SDK_ROOT/tools/bin"
+          ln -sf "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "$SDK_ROOT/tools/bin/sdkmanager"
+          ln -sf "$SDK_ROOT/cmdline-tools/latest/bin/avdmanager" "$SDK_ROOT/tools/bin/avdmanager"
+
           yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses || true
 
           sdkmanager --sdk_root="$SDK_ROOT" \
@@ -70,8 +75,9 @@ jobs:
             "platforms;android-33" \
             "build-tools;33.0.2"
 
+          echo "SDK installed:"
+          ls -lh "$SDK_ROOT/tools/bin/sdkmanager"
           ls -lh "$SDK_ROOT/build-tools/33.0.2/aidl"
-          echo "aidl installed successfully!"
 
       - name: Build APK
         run: |

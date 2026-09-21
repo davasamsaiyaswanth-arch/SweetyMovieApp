@@ -1,45 +1,49 @@
 
 [app]
 
-# Application information
+# Application name
 title = SweetyMovieApp
+
+# Package information
 package.name = sweetyapp
 package.domain = org.sweety.movie
 
-# Source files
+# Source directory
 source.dir = .
+
+# Files included in the APK
 source.include_exts = py,png,jpg,jpeg,kv,atlas,json
 
-# Version
+# Application version
 version = 0.1
 
 # Python and Kivy dependencies
 requirements = python3==3.11.9,kivy==2.3.1,pyjnius
 
-# Display settings
+# Screen orientation
 orientation = portrait
-fullscreen = 0
 
 # Android permissions
 android.permissions = INTERNET
 
-# Android architecture
+# Supported architecture
 android.archs = arm64-v8a
 
-# Android API
+# Android SDK configuration
 android.api = 35
 android.minapi = 24
 android.ndk = 25b
 
-# Python-for-Android configuration
+# Android build configuration
+p4a.bootstrap = sdl2
 p4a.fork = kivy
 p4a.branch = master
 
-# Bootstrap
-p4a.bootstrap = sdl2
 
-# Build settings
 [buildozer]
 
+# Buildozer logging
 log_level = 2
-warn_on_root = 1
+
+# Warn instead of failing if the user has not accepted licenses
+android.accept_sdk_license = True

@@ -46,8 +46,10 @@ jobs:
 
       - name: Clean previous build
         run: |
-          rm -rf.buildozer
-          rm -rf bin
+          rm -rf $HOME/.buildozer
+          rm -rf./.buildozer
+          rm -rf./bin
+          mkdir -p bin
 
       - name: Build APK
         env:

@@ -2,88 +2,99 @@
 name: Build SweetyMovieApp APK
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
 
-  workflow_dispatch:
+permissions:
+  contents: read
 
 jobs:
   build:
-    name: Build Android APK
+
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout source code
+
+      # 1. Download project source code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.11
+      # 2. Setup Python 3.11
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Setup Java 17
+      # 3. Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
+      # 4. Install Linux dependencies
       - name: Install system dependencies
         run: |
           sudo apt-get update
 
           sudo apt-get install -y \
-            build-essential \
             git \
             zip \
             unzip \
-            wget \
+            openjdk-17-jdk \
             autoconf \
-            automake \
             libtool \
             pkg-config \
             zlib1g-dev \
             libncurses5-dev \
+            libncursesw5-dev \
+            libtinfo6 \
+            cmake \
             libffi-dev \
             libssl-dev \
-            cmake \
-            libltdl-dev \
-            libbz2-dev \
-            liblzma-dev \
-            libsqlite3-dev \
-            libreadline-dev
+            automake \
+            autopoint \
+            gettext
 
+      # 5. Install Python build tools
       - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip setuptools wheel
+          python -m pip install buildozer==1.6.0
+          python -m pip install Cython==0.29.34
 
-          python -m pip install \
-            "buildozer==1.5.0" \
-            "cython==0.29.36"
+      # 6. Check required project files
+      - name: Check project files
+        run: |
+          test -f main.py
+          test -f buildozer.spec
 
+      # 7. Remove old broken build files
       - name: Clean previous build
         run: |
           rm -rf .buildozer
           rm -rf bin
 
-      - name: Verify configuration
-        run: |
-          test -f buildozer.spec
-          buildozer --version
-
+      # 8. Build Android APK
       - name: Build APK
+        env:
+          PIP_DISABLE_PIP_VERSION_CHECK: "1"
+          PYTHONFORANDROID_PREREQUISITES_INSTALL_INTERACTIVE: "0"
         run: |
           python -m buildozer -v android debug
 
+      # 9. Check APK output
       - name: Check APK
         run: |
-          test -n "$(find bin -maxdepth 1 -name '*.apk' -print -quit)"
-          ls -lh bin/*.apk
+          find bin -type f -name "*.apk" -print
+          test -n "$(find bin -type f -name '*.apk' -print -quit)"
 
+      # 10. Upload APK
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: SweetyMovieApp-APK
+          name: SweetyMovieApp-debug-apk
           path: bin/*.apk
           if-no-files-found: error

@@ -38,22 +38,22 @@ jobs:
 
       - name: Clean old Buildozer files
         run: |
-          rm -rf .buildozer
+          rm -rf.buildozer
+          rm -rf bin
           mkdir -p "$HOME/.buildozer/android/platform/android-sdk"
 
       - name: Install Android SDK and build tools
-        shell: bash
         run: |
-          set -euxo pipefail
-
           SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
-          CMDLINE_TOOLS="$SDK_ROOT/cmdline-tools"
 
-          mkdir -p "$CMDLINE_TOOLS"
-          
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-cmdline-tools.zip
-          unzip -q /tmp/android-cmdline-tools.zip -d "$SDK_ROOT/cmdline-tools"
-          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+
+          if [! -f "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-cmdline-tools.zip
+            unzip -q /tmp/android-cmdline-tools.zip -d "$SDK_ROOT/cmdline-tools"
+            mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
+            rm /tmp/android-cmdline-tools.zip
+          fi
 
           export ANDROID_HOME="$SDK_ROOT"
           export ANDROID_SDK_ROOT="$SDK_ROOT"
@@ -65,16 +65,18 @@ jobs:
           echo "$SDK_ROOT/platform-tools" >> $GITHUB_PATH
           echo "$SDK_ROOT/build-tools/33.0.2" >> $GITHUB_PATH
 
-          yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses
+          # License fix - Broken pipe error raadu
+          yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses || true
 
           sdkmanager --sdk_root="$SDK_ROOT" \
             "platform-tools" \
             "platforms;android-33" \
             "build-tools;33.0.2"
 
-          test -f "$SDK_ROOT/build-tools/33.0.2/aidl"
-          echo "aidl installed successfully:"
+          echo "Checking aidl..."
+          ls "$SDK_ROOT/build-tools/33.0.2/"
           "$SDK_ROOT/build-tools/33.0.2/aidl" --version
+          echo "aidl installed successfully!"
 
       - name: Build APK
         run: |

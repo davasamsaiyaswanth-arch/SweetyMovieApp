@@ -15,6 +15,11 @@ jobs:
     name: Build Android APK
     runs-on: ubuntu-22.04
 
+    env:
+      SDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+      ANDROID_HOME: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,6 +45,7 @@ jobs:
             zip \
             unzip \
             wget \
+            curl \
             autoconf \
             automake \
             libtool \
@@ -56,8 +62,7 @@ jobs:
             liblzma-dev \
             libreadline-dev \
             gettext \
-            autopoint \
-            curl
+            autopoint
 
       - name: Install Rust
         run: |
@@ -69,7 +74,64 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install buildozer cython==0.29.36
 
-      - name: Build debug APK
+      - name: Clean previous build files
+        run: |
+          rm -rf .buildozer
+          rm -rf bin
+
+      - name: Install Android SDK command line tools
+        run: |
+          mkdir -p "$SDK_ROOT/cmdline-tools"
+
+          wget -q \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+            -O /tmp/cmdline-tools.zip
+
+          unzip -q /tmp/cmdline-tools.zip \
+            -d "$SDK_ROOT/cmdline-tools"
+
+          mv "$SDK_ROOT/cmdline-tools/cmdline-tools" \
+            "$SDK_ROOT/cmdline-tools/latest"
+
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+
+      - name: Configure Android SDK environment
+        run: |
+          mkdir -p "$SDK_ROOT/tools/bin"
+
+          ln -sf \
+            "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "$SDK_ROOT/tools/bin/sdkmanager"
+
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | sdkmanager \
+            --sdk_root="$SDK_ROOT" \
+            --licenses || true
+
+      - name: Install required Android SDK packages
+        run: |
+          sdkmanager \
+            --sdk_root="$SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+      - name: Verify Android SDK installation
+        run: |
+          test -x "$SDK_ROOT/build-tools/35.0.0/aidl"
+
+          "$SDK_ROOT/build-tools/35.0.0/aidl" \
+            --version || true
+
+          echo "AIDL found successfully"
+
+      - name: Build APK
         run: |
           buildozer -v android debug
 

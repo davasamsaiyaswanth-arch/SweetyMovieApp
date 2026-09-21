@@ -2,7 +2,7 @@
 title = SweetyMovieApp
 package.name = sweetyapp
 package.domain = org.sweety.movie
-source.dir = .
+source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,json
 version = 0.1
 requirements = python3,kivy==2.3.1,pillow==10.0.0,certifi,urllib3,charset-normalizer,idna,requests
@@ -11,6 +11,7 @@ android.permissions = INTERNET
 
 [buildozer]
 log_level = 2
+
 p4a.fork = kivy
 p4a.branch = develop
 p4a.bootstrap = sdl2

@@ -10,7 +10,8 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
@@ -20,34 +21,81 @@ jobs:
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-            build-essential git zip unzip \
-            python3-pip python3-dev libffi-dev libssl-dev \
-            autoconf automake libtool pkg-config zlib1g-dev \
-            libncurses5-dev cmake m4 libtool-bin
+            build-essential \
+            git \
+            zip \
+            unzip \
+            curl \
+            wget \
+            python3-pip \
+            python3-dev \
+            libffi-dev \
+            libssl-dev \
+            autoconf \
+            automake \
+            libtool \
+            libtool-bin \
+            pkg-config \
+            zlib1g-dev \
+            libncurses5-dev \
+            cmake \
+            m4
 
-      - name: Install buildozer
+      - name: Install Buildozer
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install "pip>=23.0,<24.2"
           python -m pip install buildozer cython==3.1.0
 
-      - name: Accept Android Licenses
+      - name: Clean old Buildozer files
         run: |
-          mkdir -p "$HOME/.android/licenses"
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > "$HOME/.android/licenses/android-sdk-license"
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> "$HOME/.android/licenses/android-sdk-license"
-          echo "24333f8a63b6825ea9c5514f83c1051866b07ae" >> "$HOME/.android/licenses/android-sdk-license"
+          rm -rf .buildozer
+          mkdir -p "$HOME/.buildozer/android/platform/android-sdk"
+
+      - name: Install Android SDK and build tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
+          CMDLINE_TOOLS="$SDK_ROOT/cmdline-tools"
+
+          mkdir -p "$CMDLINE_TOOLS"
+
+          curl -fsSL \
+            -o /tmp/android-commandline-tools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+
+          unzip -q /tmp/android-commandline-tools.zip -d "$CMDLINE_TOOLS"
+          mv "$CMDLINE_TOOLS/cmdline-tools" "$CMDLINE_TOOLS/latest"
+
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$CMDLINE_TOOLS/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/build-tools/33.0.2" >> "$GITHUB_PATH"
+
+          yes | sdkmanager --sdk_root="$SDK_ROOT" --licenses || true
+
+          sdkmanager --sdk_root="$SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;33.0.2"
+
+          test -f "$SDK_ROOT/build-tools/33.0.2/aidl"
+
+          echo "aidl installed successfully:"
+          "$SDK_ROOT/build-tools/33.0.2/aidl" --version
 
       - name: Build APK
         run: |
-          rm -rf .buildozer
           buildozer -v android debug
 
       - name: Upload APK
